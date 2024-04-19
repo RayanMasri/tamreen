@@ -1,0 +1,6 @@
+.bottom-button {
+	transition: 0.2s;
+}
+.bottom-button:hover {
+	background-color: gray;
+}

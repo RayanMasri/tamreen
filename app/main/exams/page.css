@@ -1,0 +1,9 @@
+#new-exam {
+	background: rgb(65, 59, 59);
+	transition: 0.2s;
+}
+
+#new-exam:hover {
+	background: rgb(167, 164, 164);
+	color: black;
+}
