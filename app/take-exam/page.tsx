@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import './page.css';
 
@@ -22,7 +22,7 @@ function Button(props: { label: string; onClick: () => void }) {
 export default function Home() {
 	const router = useRouter();
 
-	const [state, setState] = useState<{
+	const [state, _setState] = useState<{
 		exam: any[];
 		start: number;
 		index: number;
@@ -46,13 +46,19 @@ export default function Home() {
 		error: '',
 	});
 
-	const onSelect = (index: number) => {
-		let selected = [...state.selected];
+	const _state: any = useRef(null);
+	const setState = (data: any) => {
+		_state.current = data;
+		_setState(data);
+	};
 
-		selected[state.index] = index;
+	const onSelect = (index: number) => {
+		let selected = [..._state.current.selected];
+
+		selected[_state.current.index] = index;
 
 		setState({
-			...state,
+			..._state.current,
 			selected: selected,
 		});
 	};
@@ -111,6 +117,13 @@ export default function Home() {
 			exam: exam,
 			selected: new Array(exam.length).fill(-1),
 			start: Date.now(),
+		});
+
+		document.addEventListener('keydown', (event) => {
+			if (['1', '2', '3', '4'].includes(event.key)) {
+				console.log('hi');
+				onSelect(parseInt(event.key) - 1);
+			}
 		});
 	}, []);
 
