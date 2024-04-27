@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
-import { LayoutDashboard, BookCheck } from 'lucide-react';
-import { useRouter, usePathname } from 'next/navigation';
+import { LayoutDashboard, Bookmark, BookCheck, Award, Info } from 'lucide-react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
 import './globals.css';
 
@@ -12,6 +12,8 @@ export default function RootLayout({
 }>) {
 	const router = useRouter();
 	const pathname = usePathname();
+	const params = useSearchParams();
+
 	return (
 		<html lang='en'>
 			<body>
@@ -32,6 +34,40 @@ export default function RootLayout({
 							<div className={`page-button${pathname == '/main/exams' ? ' selected' : ''}`} onClick={() => router.push('/main/exams')}>
 								<BookCheck />
 								<div>اختباراتي</div>
+							</div>
+
+							<div
+								className={`page-button${pathname == '/main' ? ' selected' : ''}`}
+								onClick={() => {
+									if (pathname == '/main') {
+										setTimeout(function () {
+											window.location.reload();
+										}, 100);
+									}
+									router.push('/main?to=badges');
+								}}
+							>
+								<Award />
+								<div>الانجازات</div>
+							</div>
+							<div
+								className={`page-button${pathname == '/bookmarks' ? ' selected' : ''}`}
+								onClick={() => {
+									router.push('/bookmarks');
+								}}
+							>
+								<Bookmark />
+								<div>أسئلة محفوظة</div>
+							</div>
+							<div className='w-full h-[1px] bg-white my-4'>&nbsp;</div>
+							<div
+								className={`page-button${pathname == '/main/about/' ? ' selected' : ''}`}
+								onClick={() => {
+									router.push('/main/about');
+								}}
+							>
+								<Info />
+								<div>حولنا</div>
 							</div>
 						</div>
 					</div>

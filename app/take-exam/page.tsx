@@ -22,24 +22,10 @@ function Button(props: { label: string; onClick: () => void }) {
 export default function Home() {
 	const router = useRouter();
 
-	const [state, _setState] = useState<{
-		exam: any[];
-		start: number;
-		index: number;
-		selected: number[];
-		error: string;
-	}>({
-		exam: [
-			{
-				answers: ['قابيل : عيسى', 'يعقوب : صالح', 'فرعون : موسى', 'هرقل :بيزنطة'],
-				chosen: '',
-				id: 3217,
-				notes: 'فئة أنبياء, يعقوب و صالح أنبياء.',
-				question: 'إبراهيم : محمد',
-				skill: 'verbal-analogy',
-				true: 'يعقوب : صالح',
-			},
-		],
+	const [state, _setState] = useState<any>({
+		exam: {
+			data: [{ skill: '', answers: [] }],
+		},
 		start: 0,
 		index: 0,
 		selected: [-1, -1, -1],
@@ -54,13 +40,14 @@ export default function Home() {
 
 	const onSelect = (index: number) => {
 		let selected = [..._state.current.selected];
-
 		selected[_state.current.index] = index;
 
 		setState({
 			..._state.current,
 			selected: selected,
 		});
+
+		saveExam();
 	};
 
 	const onPrevious = () => {
@@ -78,50 +65,105 @@ export default function Home() {
 		});
 	};
 
+	const saveExam = () => {
+		let exams = JSON.parse(localStorage.getItem('exams') || '[]');
+		let active = parseInt(localStorage.getItem('active-exam') || '-1');
+
+		let examIndex = exams.findIndex((e: any) => e.id == active);
+		let exam = exams[examIndex];
+		exams[examIndex] = {
+			...exam,
+			data: exam.data.map((item: any, index: number) => {
+				item.chosen = _state.current.exam.data[index].answers[_state.current.selected[index]];
+				return item;
+			}),
+		};
+
+		localStorage.setItem('exams', JSON.stringify(exams));
+	};
+
+	const addBadge = (badge: number) => {
+		let badges = JSON.parse(localStorage.getItem('badges') || '[]');
+		badges.push(badge);
+		localStorage.setItem('badges', JSON.stringify(badges));
+	};
+
 	const onSubmit = () => {
 		if (state.selected.includes(-1)) {
 			setState({
 				...state,
-				error: `${state.selected.filter((e) => e == -1).length} أسئلة غير محلوله`,
+				error: `${state.selected.filter((e: any) => e == -1).length} أسئلة غير محلوله`,
 			});
 			return;
 		}
 
 		let exams = JSON.parse(localStorage.getItem('exams') || '[]');
+		// let active = parseInt(localStorage.getItem('active-exam') || '-1');
 
-		let exam = [...state.exam];
-
-		for (let index in exam) {
-			exam[index].chosen = exam[index].answers[state.selected[index]];
-		}
-
-		exams.push({
-			data: exam,
-			id: exams.length,
+		let examIndex = exams.findIndex((e: any) => e.id == _state.current.exam.id);
+		let exam = exams[examIndex];
+		exams[examIndex] = {
+			...exam,
+			pending: false,
 			duration: Date.now() - state.start,
-		});
+		};
 
 		localStorage.setItem('exams', JSON.stringify(exams));
+		// let [exam, _] = updateExam({
+		// 	pending: false,
+		// 	duration: Date.now() - state.start,
+		// });
+		let examsTaken: number = parseInt(localStorage.getItem('exams-taken') || '0');
+		examsTaken += 1;
+		localStorage.setItem('exams-taken', examsTaken.toString());
 
-		router.push(`/exam-result?id=${exams.length - 1}`);
+		switch (examsTaken) {
+			case 1:
+				addBadge(0);
+				break;
+			case 5:
+				addBadge(1);
+				break;
+			case 10:
+				addBadge(2);
+				break;
+			case 25:
+				addBadge(3);
+				break;
+			case 50:
+				addBadge(4);
+				break;
+			case 100:
+				addBadge(5);
+				break;
+		}
+
+		router.push(`/exam-result?id=${exam.id}`);
 	};
 
 	useEffect(() => {
-		let exam = JSON.parse(localStorage.getItem('exam') || '[]');
-		console.log(exam);
-		if (exam.length == 0) {
-			router.push('/exams');
+		let active = parseInt(localStorage.getItem('active-exam') || '-1');
+
+		let exams = JSON.parse(localStorage.getItem('exams') || '[]');
+		console.log(exams);
+
+		let exam = exams.find((e: any) => e.id == active);
+		if (!exam) {
+			router.push('/main/exams');
+			return;
 		}
+
 		setState({
 			...state,
 			exam: exam,
-			selected: new Array(exam.length).fill(-1),
-			start: Date.now(),
+			selected: exam.data.map((item: any) => {
+				return item.answers.findIndex((e: any) => e == item.chosen);
+			}),
+			start: exam.date,
 		});
 
 		document.addEventListener('keydown', (event) => {
 			if (['1', '2', '3', '4'].includes(event.key)) {
-				console.log('hi');
 				onSelect(parseInt(event.key) - 1);
 			}
 		});
@@ -144,7 +186,7 @@ export default function Home() {
 								<div
 									className={`bg-green-500 absolute h-full`}
 									style={{
-										width: `${Math.floor((state.selected.filter((e) => e != -1).length / state.exam.length) * 100)}%`,
+										width: `${Math.floor((state.selected.filter((e: any) => e != -1).length / state.exam.data.length) * 100)}%`,
 									}}
 								>
 									&nbsp;
@@ -155,19 +197,19 @@ export default function Home() {
 					<div className='w-full h-full flex-col flex justify-center items-center'>
 						<div className='w-[500px] h-full flex flex-col justify-center items-start'>
 							<div className='text-gray-300 text-[20px]'>
-								السؤال {state.index + 1} - {skills[state.exam[state.index].skill]}
+								السؤال {state.index + 1} - {skills[state.exam.data[state.index].skill]}
 							</div>
-							<div className='text-[20px]'>{state.exam[state.index].question}</div>
+							<div className='text-[20px]'>{state.exam.data[state.index].question}</div>
 							<div id='fields' className='w-full flex flex-col justify-center items-center gap-4 mt-4'>
-								{state.exam[state.index].answers.map((answer: string, index: number) => {
+								{state.exam.data[state.index].answers.map((answer: string, index: number) => {
 									return <Field name={answer} checked={state.selected[state.index] == index} onClick={() => onSelect(index)} key={`${state.index}-${index}`} />;
 								})}
 							</div>
 						</div>
 						<div className='flex flex-row gap-2 justify-center items-center mb-2 pt-2'>
 							{state.index != 0 && <Button label='السابق' onClick={onPrevious}></Button>}
-							{state.index + 1 != state.exam.length && <Button label='التالي' onClick={onNext}></Button>}
-							{state.index + 1 == state.exam.length && <Button label='إنهاء' onClick={onSubmit}></Button>}
+							{state.index + 1 != state.exam.data.length && <Button label='التالي' onClick={onNext}></Button>}
+							{state.index + 1 == state.exam.data.length && <Button label='إنهاء' onClick={onSubmit}></Button>}
 						</div>
 						<div className='mb-6 text-red-600'>{state.error}</div>
 					</div>

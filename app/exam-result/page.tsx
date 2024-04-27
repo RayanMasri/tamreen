@@ -29,6 +29,7 @@ export default function Home() {
 			data: [],
 			id: -1,
 			duration: 0,
+			pending: false,
 		},
 	});
 
@@ -86,7 +87,7 @@ export default function Home() {
 
 	return (
 		<div className='w-full h-full flex'>
-			{state.exam.data.length != 0 ? (
+			{state.exam.data.length != 0 && !state.exam.pending ? (
 				<div className='w-full h-full bg-[#09090B] flex flex-col items-start'>
 					<div className='w-full flex flex-row justify-center items-center'>
 						<div className='w-full p-4 bg-gray-800 h-[50px] flex justify-center items-center flex-row gap-4 relative'>
@@ -127,7 +128,24 @@ export default function Home() {
 					</div>
 				</div>
 			) : (
-				<div className='w-full h-full bg-[#09090B] flex flex-col items-start'>لم نجد الاختبار</div>
+				<div className='w-full h-full bg-[#09090B] flex flex-col items-center justify-center text-[30px]'>
+					{state.exam.data.length == 0 ? (
+						'لم نجد الاختبار'
+					) : (
+						<div>
+							<div>الاختبار غير مكتمل</div>
+							<div
+								className='rounded-full p-2 flex justify-center items-center text-black bg-orange-300 mt-4'
+								onClick={() => {
+									localStorage.setItem('active-exam', state.exam.id);
+									router.push('/take-exam');
+								}}
+							>
+								اكمال الاختبار
+							</div>
+						</div>
+					)}
+				</div>
 			)}
 		</div>
 	);

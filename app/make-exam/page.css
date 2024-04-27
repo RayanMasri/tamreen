@@ -1,0 +1,21 @@
+.bottom-button {
+	transition: 0.2s;
+}
+.bottom-button:hover {
+	background-color: gray;
+}
+
+.question-field {
+	transition: 0.2s;
+}
+.question-field:hover {
+	background-color: gray;
+}
+
+.basic-hover {
+	transition: 0.2s;
+}
+
+.basic-hover:hover {
+	opacity: 0.5;
+}

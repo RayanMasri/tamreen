@@ -1,9 +1,16 @@
 #new-exam {
-	background: rgb(65, 59, 59);
 	transition: 0.2s;
 }
 
 #new-exam:hover {
-	background: rgb(167, 164, 164);
+	background: rgb(12, 70, 41);
 	color: black;
+}
+
+.basic-hover {
+	transition: 0.2s;
+}
+
+.basic-hover:hover {
+	opacity: 0.5;
 }

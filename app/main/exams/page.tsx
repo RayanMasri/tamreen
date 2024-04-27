@@ -1,6 +1,6 @@
 'use client';
-import React, { useState, useEffect } from 'react';
-import { BookOpenCheck, Timer } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { BookOpenCheck, Timer, CirclePlus, Trash2, Pencil } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import data from '../../data.json';
 import './page.css';
@@ -25,6 +25,14 @@ const skills: any = {
 	'sentence-completion': 'إكمال جمل',
 };
 function Exam(props: { exam: any }) {
+	const [state, setState] = useState<any>({
+		deleted: false,
+		name: props.exam.name,
+	});
+
+	const router = useRouter();
+	const name: any = useRef();
+
 	let values: any = {
 		'verbal-analogy': 0,
 		'contextual-error': 0,
@@ -43,27 +51,97 @@ function Exam(props: { exam: any }) {
 
 	description = description.join(' - ');
 
-	return (
-		<div className='rounded border-gray-200 border-2 p-4 h-min w-[370px]'>
-			<div id='title' className='text-[30px]'>
-				اختبار {props.exam.id}
-			</div>
-			<div id='description' className='text-gray-300'>
-				{description}
-			</div>
+	const onChange = (event) => {
+		setState({
+			...state,
+			name: event.target.value,
+		});
 
-			<div className='mt-8 flex flex-row gap-4'>
-				<div className='flex flex-row gap-1 justify-center items-center h-min'>
-					<BookOpenCheck />
-					<div className='text-[14px] text-gray-400'>
-						{props.exam.data.filter((item: any) => item.chosen == item.true).length}/{props.exam.data.length}
+		if (event.target.value.trim() != '') {
+			let exams = JSON.parse(localStorage.getItem('exams') || '[]');
+			exams = exams.map((exam: any) => {
+				if (exam.id != props.exam.id) return exam;
+
+				return {
+					...exam,
+					name: event.target.value.trim(),
+				};
+			});
+
+			localStorage.setItem('exams', JSON.stringify(exams));
+		}
+	};
+
+	const onDelete = () => {
+		let exams = JSON.parse(localStorage.getItem('exams') || '[]');
+		exams = exams.filter((exam: any) => exam.id != props.exam.id);
+		localStorage.setItem('exams', JSON.stringify(exams));
+
+		setState({
+			...state,
+			deleted: true,
+		});
+	};
+
+	const onEdit = () => {
+		name.current.focus();
+		name.current.select();
+	};
+
+	return (
+		<div
+			className='rounded relative border-gray-200 border-2 p-4 pt-2 w-[370px] h-[153px]'
+			style={{
+				display: state.deleted ? 'none' : 'block',
+			}}
+		>
+			{props.exam.pending && <div className='absolute top-0 left-0 w-full bg-red-500  text-[16px] flex justify-center items-center h-min px-3 py-[2px] whitespace-nowrap'>غير مكتمل</div>}
+
+			<div
+				id='title'
+				className='text-[30px] flex flex-row justify-between items-center gap-2'
+				style={{
+					marginTop: props.exam.pending ? 25 : 0,
+				}}
+			>
+				<div className='flex flex-row justify-center items-center gap-2'>
+					<input type='text' value={state.name} className='w-[250px] bg-transparent' onChange={onChange} ref={name} />
+				</div>
+				<div className=' flex flex-row gap-x-2'>
+					{!props.exam.pending && <Pencil className='text-gray-300 basic-hover' onClick={onEdit} />}
+					<Trash2 className='text-red-400 basic-hover' onClick={onDelete} />
+				</div>
+			</div>
+			{!props.exam.pending && (
+				<div id='description' className='text-gray-300'>
+					{description}
+				</div>
+			)}
+
+			{props.exam.pending ? (
+				<div
+					className='rounded-full p-2 flex justify-center items-center text-black bg-orange-300 mt-3 basic-hover'
+					onClick={() => {
+						localStorage.setItem('active-exam', props.exam.id);
+						router.push('/take-exam');
+					}}
+				>
+					اكمال الاختبار
+				</div>
+			) : (
+				<div className='mt-8 flex flex-row gap-4'>
+					<div className='flex flex-row gap-1 justify-center items-center h-min'>
+						<BookOpenCheck />
+						<div className='text-[14px] text-gray-400'>
+							{props.exam.data.filter((item: any) => item.chosen == item.true).length}/{props.exam.data.length}
+						</div>
+					</div>
+					<div className='flex flex-row gap-1 justify-center items-center h-min'>
+						<Timer />
+						<div className='text-[14px] text-gray-400'>{formatSeconds(props.exam.duration)}</div>
 					</div>
 				</div>
-				<div className='flex flex-row gap-1 justify-center items-center h-min'>
-					<Timer />
-					<div className='text-[14px] text-gray-400'>{formatSeconds(props.exam.duration)}</div>
-				</div>
-			</div>
+			)}
 		</div>
 	);
 }
@@ -97,38 +175,20 @@ export default function Exams() {
 	}, []);
 
 	const newExam = () => {
-		let questions: any = [];
-
-		for (let [key, value] of Object.entries(data)) {
-			shuffle(value);
-
-			questions.push(
-				value.slice(0, 10).map((question: any) => {
-					return {
-						...question,
-						skill: key,
-						chosen: '',
-					};
-				})
-			);
-		}
-
-		questions = questions.flat();
-		console.log(questions);
-		localStorage.setItem('exam', JSON.stringify(questions));
-
-		router.push('/take-exam');
+		router.push('/make-exam');
 	};
 
 	return (
 		<div className='relative w-full h-full'>
-			<div className='w-full h-full flex flex-row flex-wrap content-start gap-8 p-8 overflow-y-scroll relative'>
-				{state.exams.map((exam: any, index: number) => {
-					return <Exam exam={exam} key={`exam-${index}`} />;
-				})}
-			</div>
-			<div id='new-exam' className='absolute bottom-0 left-0 w-full p-2 text-[25px] flex justify-center items-center text-center' onClick={() => newExam()}>
-				اختبار جديد
+			<div className='w-full h-full flex flex-row flex-wrap content-start gap-8 p-8 overflow-y-scroll relative pb-20'>
+				<div id='new-exam' className='rounded-2xl border-[#37B294] border-[7px] p-4 w-[370px] justify-center items-center flex h-[153px]' onClick={() => newExam()}>
+					<CirclePlus className='w-[80px] h-[80px] text-[#37B294]' />
+				</div>
+				{state.exams
+					.sort((a, b) => b.date - a.date)
+					.map((exam: any, index: number) => {
+						return <Exam exam={exam} key={`exam-${index}`} />;
+					})}
 			</div>
 		</div>
 	);
