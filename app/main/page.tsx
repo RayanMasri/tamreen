@@ -115,10 +115,11 @@ export default function Home() {
 			)}
 			<Section id='badges' title={`الإنجازات (${state.badges.filter((item: any) => !item.locked).length})`} className='p-4'>
 				<div className='flex flex-row content-start flex-wrap gap-8 p-6 gap-x-12 items-center bg-[#2E3856] rounded mt-4'>
-					{state.badges.map((badge: any) => {
+					{state.badges.map((badge: any, index: number) => {
 						console.log(badge);
 						return (
 							<div
+								key={index.toString()}
 								className='w-min h-min rounded-b-lg rounded-t-full pt-1 badge'
 								style={{
 									backgroundColor: badge.locked ? '#D9DDE8' : 'rgb(61, 61, 130)',
