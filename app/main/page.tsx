@@ -1,4 +1,4 @@
-'use client';
+i'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import { Hexagon, X } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
@@ -66,7 +66,7 @@ export default function Home() {
 						</div>
 
 						<div className='text-[30px]'>{(badges.find((e: any) => e.id == state.showingBadge) || { name: "" }).name}</div>
-						<div className='text-[20px] text-gray-400'>{badges.find((e: any) => e.id == state.showingBadge).description}</div>
+						<div className='text-[20px] text-gray-400'>{(badges.find((e: any) => e.id == state.showingBadge) || { description: "" }).description}</div>
 					</div>
 				</div>
 			)}
