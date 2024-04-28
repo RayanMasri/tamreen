@@ -67,22 +67,14 @@ function shuffle(array: any[]) {
 export default function Home() {
 	const router = useRouter();
 
-	let categories = getCategories();
-
-	let exams = JSON.parse(localStorage.getItem('exams') || '[]');
-
-	let active = exams.length == 0 ? 0 : exams.sort((a: any, b: any) => b.id - a.id)[0].id + 1;
-
-	let name = `اختبار ${active}`;
-
 	const [state, setState] = useState<any>({
-		categories: categories,
-		name: name,
+		categories: [],
+		name: “”,
 		error: '',
 	});
 
 	const toggleStatus = (index: number) => {
-		let categories = getCategories();
+		let categories = [...state.categories]
 
 		categories[index].status = !categories[index].status;
 
@@ -96,7 +88,7 @@ export default function Home() {
 	};
 
 	const onChange = (index: number, event: any) => {
-		let categories = getCategories();
+		let categories = [...state.categories]
 
 		categories[index].count = event.target.value;
 
@@ -166,6 +158,21 @@ export default function Home() {
 		router.push('/main/exams');
 	};
 
+ useEffect(() => {
+   let categories = getCategories()
+	  let exams = JSON.parse(localStorage.getItem('exams') || '[]');
+
+	  let active = exams.length == 0 ? 0 : exams.sort((a: any, b: any) => b.id - a.id)[0].id + 1;
+
+	  let name = `اختبار ${active}`;
+
+   setState({
+     ...state,
+     categories: categories,
+     name: name
+   })
+ }, [])
+
 	return (
 		<div className='w-full h-full fixed top-0 left-0 flex justify-center items-center'>
 			<div className='w-[600px] flex flex-col justify-center items-center'>
@@ -173,27 +180,9 @@ export default function Home() {
 				<input type='text' className='bg-transparent border-gray-500 border-2 mt-2 rounded p-2 w-full' placeholder='الاسم' value={state.name} onChange={onNameChange} />
 				<div className='w-full bg-white h-[1px] my-4'>&nbsp;</div>
 
-				<Category name='تناظر لفظي' checked={state.categories[0].status} count={state.categories[0].count} onToggle={() => toggleStatus(0)} onChange={(event: any) => onChange(0, event)} />
-				<Category
-					name='إكمال جمل'
-					checked={state.categories[1].status}
-					count={state.categories[1].count}
-					onToggle={() => toggleStatus(1)}
-					onChange={(event: any) => onChange(1, event)}
-					style={{
-						marginTop: 8,
-					}}
-				/>
-				<Category
-					name='خطأ سياقي'
-					checked={state.categories[2].status}
-					count={state.categories[2].count}
-					onToggle={() => toggleStatus(2)}
-					onChange={(event: any) => onChange(2, event)}
-					style={{
-						marginTop: 8,
-					}}
-				/>
+    {state.categories.map((category: any, index: number) => {
+      return <Category name={category.name} checked={state.categories[index].status} count={state.categories[index].count} onToggle={() => toggleStatus(index)} onChange={(event: any) => onChange(index, event)} />
+    })}
 
 				<div className='w-full bg-white h-[1px] my-4'>&nbsp;</div>
 				<div className='w-full text-black justify-between flex items-center gap-x-2 text-[16px]'>
