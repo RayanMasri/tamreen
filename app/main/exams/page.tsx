@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
-import { BookOpenCheck, Timer, CirclePlus, Trash2, Pencil } from 'lucide-react';
+import { BookOpenCheck, Timer, CirclePlus, Trash2, Pencil, Eye } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import data from '../../data.json';
 import './page.css';
@@ -105,9 +105,10 @@ function Exam(props: { exam: any }) {
 				}}
 			>
 				<div className='flex flex-row justify-center items-center gap-2'>
-					<input type='text' value={state.name} className='w-[250px] bg-transparent' onChange={onChange} ref={name} />
+					<input type='text' value={state.name} className='w-[220px] bg-transparent' onChange={onChange} ref={name} />
 				</div>
-				<div className=' flex flex-row gap-x-2'>
+				<div className='justify-end items-center flex flex-row gap-x-2'>
+					{!props.exam.pending && <Eye className='text-gray-300 basic-hover' onClick={() => router.push(`/exam-result?id=${props.exam.id}`)} />}
 					{!props.exam.pending && <Pencil className='text-gray-300 basic-hover' onClick={onEdit} />}
 					<Trash2 className='text-red-400 basic-hover' onClick={onDelete} />
 				</div>
