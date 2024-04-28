@@ -137,7 +137,7 @@ export default function Home() {
 							<div
 								className='rounded-full p-2 flex justify-center items-center text-black bg-orange-300 mt-4'
 								onClick={() => {
-									localStorage.setItem('active-exam', state.exam.id);
+									localStorage.setItem('active-exam', state.exam.id.toString());
 									router.push('/take-exam');
 								}}
 							>
