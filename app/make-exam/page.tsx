@@ -131,7 +131,7 @@ export default function Home() {
 		for (let [key, value] of Object.entries(data)) {
 			shuffle(value);
 
-			let category = state.categories.filter((e) => e.name == skills[key])[0];
+			let category = state.categories.filter((e: any) => e.name == skills[key])[0];
 
 			if (!category.status) continue;
 
