@@ -78,10 +78,10 @@ export default function Home() {
 							.filter((e: any) => !e.pending)
 							.sort((a: any, b: any) => b.date - a.date)
 							.slice(0, 21)
-							.map((exam: any) => {
+							.map((exam: any, index: number) => {
 								console.log(exam);
 								return (
-									<div className='rounded border-gray-200 border-2 p-4 px-8 h-min w-min flex flex-row justify-center items-center'>
+									<div key={index.toString()} className='rounded border-gray-200 border-2 p-4 px-8 h-min w-min flex flex-row justify-center items-center'>
 										<div className='whitespace-nowrap'>{exam.name}</div>&nbsp;-&nbsp;
 										<div>{((exam.data.filter((question: any) => question.true == question.chosen).length / exam.data.length) * 100).toFixed(2)}%</div>
 									</div>
