@@ -185,7 +185,7 @@ export default function Exams() {
 					<CirclePlus className='w-[80px] h-[80px] text-[#37B294]' />
 				</div>
 				{state.exams
-					.sort((a, b) => b.date - a.date)
+					.sort((a: any, b: any) => b.date - a.date)
 					.map((exam: any, index: number) => {
 						return <Exam exam={exam} key={`exam-${index}`} />;
 					})}
