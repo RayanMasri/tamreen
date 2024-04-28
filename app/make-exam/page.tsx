@@ -69,8 +69,8 @@ export default function Home() {
 
 	const [state, setState] = useState<any>({
 		categories: [],
-		name: “”,
-		error: '',
+		name: '',
+		error: ''
 	});
 
 	const toggleStatus = (index: number) => {
