@@ -118,7 +118,7 @@ export default function Home() {
 	};
 
 	const onSubmit = () => {
-		if (state.categories.filter((e) => e.status).length == 0) {
+		if (state.categories.filter((e: any) => e.status).length == 0) {
 			return setState({
 				...state,
 				error: 'قم باختيار واحد على الأقل',
