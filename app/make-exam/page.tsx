@@ -181,7 +181,7 @@ export default function Home() {
 				<div className='w-full bg-white h-[1px] my-4'>&nbsp;</div>
 
     {state.categories.map((category: any, index: number) => {
-      return <Category name={category.name} checked={state.categories[index].status} count={state.categories[index].count} onToggle={() => toggleStatus(index)} onChange={(event: any) => onChange(index, event)} />
+      return <Category key={index.toString()} name={category.name} checked={state.categories[index].status} count={state.categories[index].count} onToggle={() => toggleStatus(index)} onChange={(event: any) => onChange(index, event)} />
     })}
 
 				<div className='w-full bg-white h-[1px] my-4'>&nbsp;</div>
