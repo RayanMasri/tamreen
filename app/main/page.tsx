@@ -1,4 +1,4 @@
-i'use client';
+'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import { Hexagon, X } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
