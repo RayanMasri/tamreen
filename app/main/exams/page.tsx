@@ -51,7 +51,7 @@ function Exam(props: { exam: any }) {
 
 	description = description.join(' - ');
 
-	const onChange = (event) => {
+	const onChange = (event: any) => {
 		setState({
 			...state,
 			name: event.target.value,
