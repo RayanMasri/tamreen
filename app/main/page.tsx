@@ -65,7 +65,7 @@ export default function Home() {
 							<X className='w-[30px] h-[30px]' />
 						</div>
 
-						<div className='text-[30px]'>{badges.find((e: any) => e.id == state.showingBadge).name}</div>
+						<div className='text-[30px]'>{(badges.find((e: any) => e.id == state.showingBadge) || { name: "" }).name}</div>
 						<div className='text-[20px] text-gray-400'>{badges.find((e: any) => e.id == state.showingBadge).description}</div>
 					</div>
 				</div>
