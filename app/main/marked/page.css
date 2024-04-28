@@ -1,0 +1,16 @@
+#new-exam {
+	transition: 0.2s;
+}
+
+#new-exam:hover {
+	background: rgb(12, 70, 41);
+	color: black;
+}
+
+.basic-hover {
+	transition: 0.2s;
+}
+
+.basic-hover:hover {
+	opacity: 0.5;
+}

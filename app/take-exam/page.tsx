@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
+import { Bookmark } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import './page.css';
 
@@ -30,6 +31,7 @@ export default function Home() {
 		index: 0,
 		selected: [-1, -1, -1],
 		error: '',
+		marked: [],
 	});
 
 	const _state: any = useRef(null);
@@ -153,9 +155,12 @@ export default function Home() {
 			return;
 		}
 
+		let marked = JSON.parse(localStorage.getItem('marked') || '[]');
+
 		setState({
 			...state,
 			exam: exam,
+			marked: marked,
 			selected: exam.data.map((item: any) => {
 				return item.answers.findIndex((e: any) => e == item.chosen);
 			}),
@@ -164,17 +169,37 @@ export default function Home() {
 
 		document.addEventListener('keydown', (event) => {
 			if (['1', '2', '3', '4'].includes(event.key)) {
+				console.log(_state.current);
 				onSelect(parseInt(event.key) - 1);
 			}
 		});
 	}, []);
+
+	const onMark = (id: number) => {
+		let marked = [...state.marked];
+
+		if (marked.filter((e: any) => e.id == id).length != 0) {
+			marked = marked.filter((e: any) => e.id != id);
+		} else {
+			marked.push({
+				id: id,
+				date: Date.now(),
+			});
+		}
+
+		localStorage.setItem('marked', JSON.stringify(marked));
+
+		setState({
+			...state,
+			marked: marked,
+		});
+	};
 
 	const skills: any = {
 		'verbal-analogy': 'تناظر لفظي',
 		'contextual-error': 'خطأ سياقي',
 		'sentence-completion': 'إكمال جمل',
 	};
-
 	return (
 		<div className='w-full h-full flex'>
 			{state.exam != null && (
@@ -196,8 +221,17 @@ export default function Home() {
 					</div>
 					<div className='w-full h-full flex-col flex justify-center items-center'>
 						<div className='w-[500px] h-full flex flex-col justify-center items-start'>
-							<div className='text-gray-300 text-[20px]'>
-								السؤال {state.index + 1} - {skills[state.exam.data[state.index].skill]}
+							<div className='text-gray-300 text-[20px] flex flex-row justify-center items-center gap-x-2'>
+								<Bookmark
+									className='basic-hover'
+									style={{
+										color: state.marked.filter((e: any) => e.id == state.exam.data[state.index].id).length != 0 ? 'green' : 'white',
+									}}
+									onClick={() => onMark(state.exam.data[state.index].id)}
+								/>
+								<div>
+									السؤال {state.index + 1} - {skills[state.exam.data[state.index].skill]}
+								</div>
 							</div>
 							<div className='text-[20px]'>{state.exam.data[state.index].question}</div>
 							<div id='fields' className='w-full flex flex-col justify-center items-center gap-4 mt-4'>

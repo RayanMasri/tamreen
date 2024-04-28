@@ -33,12 +33,12 @@ const skills: any = {
 };
 
 const getCategories = () => {
-	let categories: any = localStorage.getItem('categories');
-	if (categories != '') {
-		categories = JSON.parse(categories);
-	} else {
+	let categories: any = JSON.parse(localStorage.getItem('categories') || '[]');
+
+	if (categories.length == 0) {
 		categories = [...defaultCategories];
 	}
+
 	return categories;
 };
 
@@ -70,11 +70,11 @@ export default function Home() {
 	const [state, setState] = useState<any>({
 		categories: [],
 		name: '',
-		error: ''
+		error: '',
 	});
 
 	const toggleStatus = (index: number) => {
-		let categories = [...state.categories]
+		let categories = [...state.categories];
 
 		categories[index].status = !categories[index].status;
 
@@ -88,7 +88,7 @@ export default function Home() {
 	};
 
 	const onChange = (index: number, event: any) => {
-		let categories = [...state.categories]
+		let categories = [...state.categories];
 
 		categories[index].count = event.target.value;
 
@@ -158,20 +158,20 @@ export default function Home() {
 		router.push('/main/exams');
 	};
 
- useEffect(() => {
-   let categories = getCategories()
-	  let exams = JSON.parse(localStorage.getItem('exams') || '[]');
+	useEffect(() => {
+		let categories = getCategories();
+		let exams = JSON.parse(localStorage.getItem('exams') || '[]');
 
-	  let active = exams.length == 0 ? 0 : exams.sort((a: any, b: any) => b.id - a.id)[0].id + 1;
+		let active = exams.length == 0 ? 0 : exams.sort((a: any, b: any) => b.id - a.id)[0].id + 1;
 
-	  let name = `اختبار ${active}`;
+		let name = `اختبار ${active}`;
 
-   setState({
-     ...state,
-     categories: categories,
-     name: name
-   })
- }, [])
+		setState({
+			...state,
+			categories: categories,
+			name: name,
+		});
+	}, []);
 
 	return (
 		<div className='w-full h-full fixed top-0 left-0 flex justify-center items-center'>
@@ -180,9 +180,18 @@ export default function Home() {
 				<input type='text' className='bg-transparent border-gray-500 border-2 mt-2 rounded p-2 w-full' placeholder='الاسم' value={state.name} onChange={onNameChange} />
 				<div className='w-full bg-white h-[1px] my-4'>&nbsp;</div>
 
-    {state.categories.map((category: any, index: number) => {
-      return <Category key={index.toString()} name={category.name} checked={state.categories[index].status} count={state.categories[index].count} onToggle={() => toggleStatus(index)} onChange={(event: any) => onChange(index, event)} />
-    })}
+				{state.categories.map((category: any, index: number) => {
+					return (
+						<Category
+							key={index.toString()}
+							name={category.name}
+							checked={state.categories[index].status}
+							count={state.categories[index].count}
+							onToggle={() => toggleStatus(index)}
+							onChange={(event: any) => onChange(index, event)}
+						/>
+					);
+				})}
 
 				<div className='w-full bg-white h-[1px] my-4'>&nbsp;</div>
 				<div className='w-full text-black justify-between flex items-center gap-x-2 text-[16px]'>

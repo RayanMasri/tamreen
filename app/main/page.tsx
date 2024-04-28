@@ -65,8 +65,8 @@ export default function Home() {
 							<X className='w-[30px] h-[30px]' />
 						</div>
 
-						<div className='text-[30px]'>{(badges.find((e: any) => e.id == state.showingBadge) || { name: "" }).name}</div>
-						<div className='text-[20px] text-gray-400'>{(badges.find((e: any) => e.id == state.showingBadge) || { description: "" }).description}</div>
+						<div className='text-[30px]'>{(badges.find((e: any) => e.id == state.showingBadge) || { name: '' }).name}</div>
+						<div className='text-[20px] text-gray-400'>{(badges.find((e: any) => e.id == state.showingBadge) || { description: '' }).description}</div>
 					</div>
 				</div>
 			)}
@@ -95,6 +95,7 @@ export default function Home() {
 							height={300}
 							data={state.exams
 								.filter((e: any) => !e.pending)
+								.sort((a: any, b: any) => a.date - b.date)
 								.map((exam: any) => {
 									return {
 										uv: (exam.data.filter((question: any) => question.true == question.chosen).length / exam.data.length) * 100,
@@ -104,7 +105,7 @@ export default function Home() {
 						>
 							<Line type='monotone' dataKey='uv' stroke='#8884d8' strokeWidth={3} />
 							<CartesianGrid stroke='rgba(255, 255, 255, 0.3)' />
-							<YAxis tickMargin={35} domain={[0]} />
+							<YAxis tickMargin={35} domain={[0, 100]} />
 						</LineChart>
 					</div>
 				</Section>

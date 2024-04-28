@@ -27,13 +27,13 @@ export default function RootLayout({
 							<div className='text-gray-300'>برنامج لتطوير مهاراتك في إختبار القدرات</div>
 						</div>
 						<div id='pages' className='mt-8 w-full'>
-							<div className={`page-button${pathname == '/main' ? ' selected': ''}`} onClick={() => router.push('/main')}>
+							<div className={`page-button${pathname == '/main' ? ' selected' : ''}`} onClick={() => router.push('/main')}>
 								<LayoutDashboard />
-								<div style={{ color:'white' }} >الرئيسية</div>
+								<div style={{ color: 'white' }}>الرئيسية</div>
 							</div>
 							<div className={`page-button${pathname == '/main/exams' ? ' selected' : ''}`} onClick={() => router.push('/main/exams')}>
 								<BookCheck />
-								<div style={{ color:'white' }} >اختباراتي</div>
+								<div style={{ color: 'white' }}>اختباراتي</div>
 							</div>
 
 							<div
@@ -48,12 +48,12 @@ export default function RootLayout({
 								}}
 							>
 								<Award />
-								<div style={{ color:'white' }}>الانجازات</div>
+								<div style={{ color: 'white' }}>الانجازات</div>
 							</div>
 							<div
-								className={`page-button${pathname == '/bookmarks' ? ' selected' : ''}`}
+								className={`page-button${pathname == '/main/marked' ? ' selected' : ''}`}
 								onClick={() => {
-									router.push('/bookmarks');
+									router.push('/main/marked');
 								}}
 							>
 								<Bookmark />
