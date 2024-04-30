@@ -4,6 +4,8 @@ import { Bookmark } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import './page.css';
 
+import useMediaQuery from '../../hooks/media-hook';
+
 function Field(props: { name: string; checked: boolean; onClick: () => void }) {
 	return (
 		<div className='question-field rounded-xl w-full p-4 bg-gray-300 text-black flex flex-row justify-start item-center gap-2 text-[16px]' onClick={props.onClick}>
@@ -200,6 +202,9 @@ export default function Home() {
 		'contextual-error': 'خطأ سياقي',
 		'sentence-completion': 'إكمال جمل',
 	};
+
+	let mobile = useMediaQuery('only screen and (max-width: 1212px)');
+
 	return (
 		<div className='w-full h-full flex'>
 			{state.exam != null && (
@@ -220,12 +225,12 @@ export default function Home() {
 						</div>
 					</div>
 					<div className='w-full h-full flex-col flex justify-center items-center'>
-						<div className='w-[500px] h-full flex flex-col justify-center items-start'>
+						<div className={mobile ? 'w-[300px] h-full flex flex-col justify-center items-start' : 'w-[500px] h-full flex flex-col justify-center items-start'}>
 							<div className='text-gray-300 text-[20px] flex flex-row justify-center items-center gap-x-2'>
 								<Bookmark
 									className='basic-hover'
 									style={{
-										color: state.marked.filter((e: any) => e.id == state.exam.data[state.index].id).length != 0 ? 'green' : 'white',
+										color: state.marked.filter((e: any) => e.id == state.exam.data[state.index].id).length != 0 ? 'cyan' : 'white',
 									}}
 									onClick={() => onMark(state.exam.data[state.index].id)}
 								/>

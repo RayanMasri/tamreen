@@ -1,9 +1,11 @@
+'use client';
 import './page.css';
-
+import useMediaQuery from '../../../hooks/media-hook';
 function Section(props: any) {
+	let mobile = useMediaQuery('only screen and (max-width: 1212px)');
 	return (
 		<div className={props.className} id={props.id}>
-			<div className='text-[50px]'>{props.title}</div>
+			<div className={mobile ? 'text-[30px]' : 'text-[50px]'}>{props.title}</div>
 			<div className='bg-white w-full h-[1px] my-2'>&nbsp;</div>
 			<div>{props.children}</div>
 		</div>
@@ -11,8 +13,16 @@ function Section(props: any) {
 }
 
 export default function Home() {
+	let mobile = useMediaQuery('only screen and (max-width: 1212px)');
+
 	return (
-		<div className='w-full h-full relative justify-start items-start p-6 text-[30px] flex flex-col gap-y-8'>
+		<div
+			className={
+				mobile
+					? 'w-full h-full relative justify-start items-start p-6 text-[15px] flex flex-col gap-y-2 overflow-y-scroll'
+					: 'w-full h-full relative justify-start items-start p-6 text-[30px] flex flex-col gap-y-8 overflow-y-scroll'
+			}
+		>
 			<Section title='حولنا'>
 				تمرين هو وجهتك النهائية لإتقان اختبار القدرات. نحن ندرك أن التحضير لاختبار القدرات العامة قد يكون أمرًا شاقًا، ولهذا السبب قمنا بإنشاء منصة شاملة لمساعدتك على التفوق بثقة.
 			</Section>

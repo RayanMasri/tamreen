@@ -5,19 +5,7 @@ import { useRouter } from 'next/navigation';
 import data from '../../data.json';
 import './page.css';
 
-const formatSeconds = (seconds: number) => {
-	seconds = seconds / 1000;
-	seconds = Math.round(seconds);
-	var hours = Math.floor(seconds / (60 * 60));
-
-	var divisor_for_minutes = seconds % (60 * 60);
-	var minutes = Math.floor(divisor_for_minutes / 60);
-
-	var divisor_for_seconds = divisor_for_minutes % 60;
-	seconds = Math.ceil(divisor_for_seconds);
-	console.log(hours);
-	return `${hours != 0 ? hours.toString() + 'h ' : ''}${minutes != 0 ? minutes.toString() + 'm ' : ''}${seconds != 0 ? seconds.toString() + 's ' : ''}`;
-};
+import useMediaQuery from '../../../hooks/media-hook';
 
 const skills: any = {
 	'verbal-analogy': 'تناظر لفظي',
@@ -25,26 +13,38 @@ const skills: any = {
 	'sentence-completion': 'إكمال جمل',
 };
 function Question(props: any) {
+	let mobile = useMediaQuery('only screen and (max-width: 1212px)');
+
 	return (
-		<div className='rounded relative border-gray-200 border-2 pb-4 pt-2 px-4 min-w-[400px] flex flex-col justify-center items-center'>
-			<div id='title' className='text-[30px] flex flex-row justify-between items-center gap-2 w-full'>
+		<div
+			className={
+				mobile
+					? 'rounded relative border-gray-200 border-[1px] pb-2 pt-2 px-2 min-w-[100px] flex flex-col justify-center items-center'
+					: 'rounded relative border-gray-200 border-2 pb-4 pt-2 px-4 min-w-[400px] flex flex-col justify-center items-center'
+			}
+		>
+			<div id='title' className={mobile ? 'text-[18px] flex flex-row justify-between items-start gap-2 w-full' : 'text-[30px] flex flex-row justify-between items-center gap-2 w-full'}>
 				<div className='flex flex-row justify-center items-center gap-2'>{props.data.question}</div>
-				<div className=' flex flex-row gap-x-2'>
-					<Trash2 className='text-red-400 basic-hover' onClick={props.onDelete} />
+				<div className='flex flex-row gap-x-2'>
+					<Trash2 className={mobile ? 'w-[18px] h-[18px] text-red-400 basic-hover mt-1' : 'text-red-400 basic-hover'} onClick={props.onDelete} />
 				</div>
 			</div>
-			<div className='flex flex-row justify-start items-start gap-x-2 p-2 pb-0 pr-0 w-full'>
+			<div className='flex flex-row justify-start items-start flex-wrap gap-2 p-2 pb-0 pr-0 w-full'>
 				{props.data.answers.map((answer: any, index: number) => {
 					return (
 						<div
 							key={`${props.data.question}-${index.toString()}`}
-							className='rounded-full text-black p-1 px-3 whitespace-nowrap flex flex-row justify-center items-center gap-x-1 '
+							className={
+								mobile
+									? 'rounded-full text-black text-[12px] px-2 whitespace-nowrap flex flex-row justify-center items-center gap-x-1 '
+									: 'rounded-full text-black p-1 px-3 whitespace-nowrap flex flex-row justify-center items-center gap-x-1 '
+							}
 							style={{
 								backgroundColor: answer == props.data.true ? 'green' : 'white',
 								color: answer == props.data.true ? 'white' : 'black',
 							}}
 						>
-							{answer == props.data.true && <Check />}
+							{answer == props.data.true && <Check className={mobile && 'w-[16px] h-[16px]'} />}
 							<div>{answer}</div>
 						</div>
 					);

@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import data from '../../data.json';
 import './page.css';
 
+import useMediaQuery from '../../../hooks/media-hook';
+
 const formatSeconds = (seconds: number) => {
 	seconds = seconds / 1000;
 	seconds = Math.round(seconds);
@@ -46,7 +48,9 @@ function Exam(props: { exam: any }) {
 	let description: any = [];
 
 	for (let [key, value] of Object.entries(values)) {
-		description.push(`${value} ${skills[key]}`);
+		if (value != 0) {
+			description.push(`${value} ${skills[key]}`);
+		}
 	}
 
 	description = description.join(' - ');
@@ -88,40 +92,59 @@ function Exam(props: { exam: any }) {
 		name.current.select();
 	};
 
+	let mobile = useMediaQuery('only screen and (max-width: 1212px)');
+
 	return (
 		<div
-			className='rounded relative border-gray-200 border-2 p-4 pt-2 w-[370px] h-[153px]'
+			className={mobile ? 'rounded relative border-gray-200 border-[1px] p-2 pt-1 w-[194px] h-[110px] box-border' : 'rounded relative border-gray-200 border-2 p-4 pt-2 w-[370px] h-[153px]'}
 			style={{
 				display: state.deleted ? 'none' : 'block',
 			}}
 		>
-			{props.exam.pending && <div className='absolute top-0 left-0 w-full bg-red-500  text-[16px] flex justify-center items-center h-min px-3 py-[2px] whitespace-nowrap'>غير مكتمل</div>}
+			{props.exam.pending && (
+				<div
+					className={
+						mobile
+							? 'absolute top-0 left-0 w-full bg-red-500  text-[12px] flex justify-center items-center h-min px-3 py-[2px] whitespace-nowrap'
+							: 'absolute top-0 left-0 w-full bg-red-500  text-[16px] flex justify-center items-center h-min px-3 py-[2px] whitespace-nowrap'
+					}
+				>
+					غير مكتمل
+				</div>
+			)}
 
 			<div
 				id='title'
-				className='text-[30px] flex flex-row justify-between items-center gap-2'
+				className={mobile ? 'text-[20px] flex flex-row justify-between items-center gap-2' : 'text-[30px] flex flex-row justify-between items-center gap-2'}
 				style={{
 					marginTop: props.exam.pending ? 25 : 0,
 				}}
 			>
 				<div className='flex flex-row justify-center items-center gap-2'>
-					<input type='text' value={state.name} className='w-[220px] bg-transparent' onChange={onChange} ref={name} />
+					<input type='text' value={state.name} className={mobile ? 'w-[80px] bg-transparent' : 'w-[220px] bg-transparent'} onChange={onChange} ref={name} />
 				</div>
 				<div className='justify-end items-center flex flex-row gap-x-2'>
-					{!props.exam.pending && <Eye className='text-gray-300 basic-hover' onClick={() => router.push(`/exam-result?id=${props.exam.id}`)} />}
-					{!props.exam.pending && <Pencil className='text-gray-300 basic-hover' onClick={onEdit} />}
-					<Trash2 className='text-red-400 basic-hover' onClick={onDelete} />
+					{!props.exam.pending && (
+						<Eye className={mobile ? 'text-gray-300 basic-hover w-[20px] h-[20px]' : 'text-gray-300 basic-hover'} onClick={() => router.push(`/exam-result?id=${props.exam.id}`)} />
+					)}
+					{!props.exam.pending && <Pencil className='text-gray-300 basic-hover w-[20px] h-[20px]' onClick={onEdit} />}
+					<Trash2 className='text-red-400 basic-hover w-[20px] h-[20px]' onClick={onDelete} />
 				</div>
 			</div>
+
 			{!props.exam.pending && (
-				<div id='description' className='text-gray-300'>
+				<div id='description' className={mobile ? 'text-gray-300 text-[12px]' : 'text-gray-300'}>
 					{description}
 				</div>
 			)}
 
 			{props.exam.pending ? (
 				<div
-					className='rounded-full p-2 flex justify-center items-center text-black bg-orange-300 mt-3 basic-hover'
+					className={
+						mobile
+							? 'rounded-full p-1 flex justify-center items-center text-black bg-orange-300 mt-3 basic-hover text-[12px]'
+							: 'rounded-full p-2 flex justify-center items-center text-black bg-orange-300 mt-3 basic-hover'
+					}
 					onClick={() => {
 						localStorage.setItem('active-exam', props.exam.id);
 						router.push('/take-exam');
@@ -130,16 +153,16 @@ function Exam(props: { exam: any }) {
 					اكمال الاختبار
 				</div>
 			) : (
-				<div className='mt-8 flex flex-row gap-4'>
+				<div className={mobile ? 'mt-2 flex flex-row gap-4 absolute bottom-0 mb-2' : 'mt-8 flex flex-row gap-4'}>
 					<div className='flex flex-row gap-1 justify-center items-center h-min'>
-						<BookOpenCheck />
-						<div className='text-[14px] text-gray-400'>
+						<BookOpenCheck className={mobile && 'w-[20px] h-[20px]'} />
+						<div className={mobile ? 'text-[12px] text-gray-400' : 'text-[14px] text-gray-400'}>
 							{props.exam.data.filter((item: any) => item.chosen == item.true).length}/{props.exam.data.length}
 						</div>
 					</div>
 					<div className='flex flex-row gap-1 justify-center items-center h-min'>
-						<Timer />
-						<div className='text-[14px] text-gray-400'>{formatSeconds(props.exam.duration)}</div>
+						<Timer className={mobile && 'w-[20px] h-[20px]'} />
+						<div className={mobile ? 'text-[12px] text-gray-400' : 'text-[14px] text-gray-400'}>{formatSeconds(props.exam.duration)}</div>
 					</div>
 				</div>
 			)}
@@ -178,12 +201,27 @@ export default function Exams() {
 	const newExam = () => {
 		router.push('/make-exam');
 	};
+	let mobile = useMediaQuery('only screen and (max-width: 1212px)');
 
 	return (
 		<div className='relative w-full h-full'>
-			<div className='w-full h-full flex flex-row flex-wrap content-start gap-8 p-8 overflow-y-scroll relative pb-20'>
-				<div id='new-exam' className='rounded-2xl border-[#37B294] border-[7px] p-4 w-[370px] justify-center items-center flex h-[153px]' onClick={() => newExam()}>
-					<CirclePlus className='w-[80px] h-[80px] text-[#37B294]' />
+			<div
+				className={
+					mobile
+						? 'w-full h-full flex flex-row flex-wrap content-start gap-4 p-8 overflow-y-scroll relative pb-20'
+						: 'w-full h-full flex flex-row flex-wrap content-start gap-8 p-8 overflow-y-scroll relative pb-20'
+				}
+			>
+				<div
+					id='new-exam'
+					className={
+						mobile
+							? 'rounded-2xl border-[#37B294] border-[4px] p-4 w-[200px] justify-center items-center flex h-[80px]'
+							: 'rounded-2xl border-[#37B294] border-[7px] p-4 w-[370px] justify-center items-center flex h-[153px]'
+					}
+					onClick={() => newExam()}
+				>
+					<CirclePlus className={mobile ? 'w-[48px] h-[48px] text-[#37B294]' : 'w-[80px] h-[80px] text-[#37B294]'} />
 				</div>
 				{state.exams
 					.sort((a: any, b: any) => b.date - a.date)

@@ -4,9 +4,19 @@ import { X, Check } from 'lucide-react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import './page.css';
 
+import useMediaQuery from '../../hooks/media-hook';
+
 function Field(props: { name: string; checked: boolean; correct: boolean; incorrect: boolean }) {
+	let mobile = useMediaQuery('only screen and (max-width: 1212px)');
+
 	return (
-		<div className='rounded-xl w-full p-4 bg-gray-300 text-black flex flex-row justify-start item-center gap-2 text-[16px]'>
+		<div
+			className={
+				mobile
+					? 'rounded-xl w-full p-2 bg-gray-300 text-black flex flex-row justify-start item-center gap-2 text-[14px]'
+					: 'rounded-xl w-full p-4 bg-gray-300 text-black flex flex-row justify-start item-center gap-2 text-[16px]'
+			}
+		>
 			<input type='radio' onChange={(event) => event.preventDefault()} checked={props.checked} className='pointer-events-none'></input>
 			<div>{props.name}</div>
 			{props.correct && <Check className='text-green-500' />}
@@ -16,8 +26,17 @@ function Field(props: { name: string; checked: boolean; correct: boolean; incorr
 }
 
 function Button(props: { label: string; onClick: () => void }) {
+	let mobile = useMediaQuery('only screen and (max-width: 1212px)');
+
 	return (
-		<div className='bottom-button w-[80px] rounded-xl p-1 text-[16px] bg-gray-300 text-black flex items-center justify-center text-center' onClick={props.onClick}>
+		<div
+			className={
+				mobile
+					? 'bottom-button w-[50px] rounded-xl p-1 text-[14px] bg-gray-300 text-black flex items-center justify-center text-center'
+					: 'bottom-button w-[80px] rounded-xl p-1 text-[16px] bg-gray-300 text-black flex items-center justify-center text-center'
+			}
+			onClick={props.onClick}
+		>
 			{props.label}
 		</div>
 	);
@@ -73,10 +92,54 @@ export default function Home() {
 	};
 
 	const retakeExam = () => {
-		console.log(state.exam);
-		localStorage.setItem('exam', JSON.stringify(state.exam.data));
+		// console.log(state.exam);
+		// localStorage.setItem('exam', JSON.stringify(state.exam.data));
 
-		router.push('/take-exam');
+		// if (state.categories.filter((e: any) => e.status).length == 0) {
+		// 	return setState({
+		// 		...state,
+		// 		error: 'قم باختيار واحد على الأقل',
+		// 	});
+		// }
+
+		// console.log(state.categories);
+
+		// let questions: any = [];
+		// for (let [key, value] of Object.entries(data)) {
+		// 	shuffle(value);
+
+		// 	let category = state.categories.filter((e: any) => e.name == skills[key])[0];
+
+		// 	if (!category.status) continue;
+
+		// 	questions.push(
+		// 		value.slice(0, parseInt(category.count)).map((question: any) => {
+		// 			return {
+		// 				...question,
+		// 				skill: key,
+		// 				chosen: '',
+		// 			};
+		// 		})
+		// 	);
+		// }
+
+		// questions = questions.flat();
+		// let exams = JSON.parse(localStorage.getItem('exams') || '[]');
+		// let active = exams.length == 0 ? 0 : exams.sort((a: any, b: any) => b.id - a.id)[0].id + 1;
+		// exams.push({
+		// 	data: questions,
+		// 	id: active,
+		// 	duration: 0,
+		// 	date: Date.now(),
+		// 	pending: true,
+		// 	name: state.name,
+		// });
+
+		// localStorage.setItem('exams', JSON.stringify(exams));
+		// localStorage.setItem('active-exam', active);
+		// router.push('/take-exam');
+
+		router.push(`/make-exam?id=${state.exam.id}`);
 	};
 
 	const skills: any = {
@@ -84,6 +147,8 @@ export default function Home() {
 		'contextual-error': 'خطأ سياقي',
 		'sentence-completion': 'إكمال جمل',
 	};
+
+	let mobile = useMediaQuery('only screen and (max-width: 1212px)');
 
 	return (
 		<div className='w-full h-full flex'>
@@ -95,21 +160,31 @@ export default function Home() {
 								<Button label='الرئيسية' onClick={() => router.push('/main')}></Button>
 								<Button label='إعادة' onClick={() => retakeExam()}></Button>
 							</div>
-							<div>
+							<div className={mobile && 'text-[12px]'}>
 								{state.exam.data.filter((item: any) => item.chosen == item.true).length}/{state.exam.data.length}
 							</div>
-							<div>{formatSeconds(state.exam.duration)}</div>
+
+							<div className={mobile && 'text-[12px]'}>{formatSeconds(state.exam.duration)}</div>
 						</div>
 					</div>
-					<div className='w-full h-full flex-col flex justify-start items-center pt-4 pb-8 overflow-y-scroll gap-y-8'>
+					<div
+						className={
+							mobile
+								? 'w-full h-full flex-col flex justify-start items-center pt-4 pb-8 overflow-y-scroll gap-y-4'
+								: 'w-full h-full flex-col flex justify-start items-center pt-4 pb-8 overflow-y-scroll gap-y-8'
+						}
+					>
 						{state.exam.data.map((question: any, index) => {
 							return (
-								<div className='w-[500px] h-full flex flex-col justify-center items-start' key={`question-${index}`}>
-									<div className='text-gray-300 text-[20px]'>
+								<div
+									className={mobile ? 'w-[300px] h-min flex flex-col justify-center items-start' : 'w-[500px] h-full flex flex-col justify-center items-start'}
+									key={`question-${index}`}
+								>
+									<div className={mobile ? 'text-gray-300 text-[16px]' : 'text-gray-300 text-[20px]'}>
 										السؤال {index + 1} - {skills[question.skill]}
 									</div>
-									<div className='text-[20px]'>{question.question}</div>
-									<div id='fields' className='w-full flex flex-col justify-center items-center gap-4 mt-4'>
+									<div className={mobile ? 'text-[16px]' : 'text-[20px]'}>{question.question}</div>
+									<div id='fields' className={mobile ? 'w-full flex flex-col justify-center items-center gap-2 mt-2' : 'w-full flex flex-col justify-center items-center gap-4 mt-4'}>
 										{question.answers.map((answer: any, index: number) => {
 											return (
 												<Field

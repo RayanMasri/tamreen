@@ -1,20 +1,25 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Check } from 'lucide-react';
 import './page.css';
 import data from '../data.json';
+
+import useMediaQuery from '../../hooks/media-hook';
 
 function Category(props: any) {
 	return (
 		<div className='flex flex-col justify-start items-center w-full h-min text-[20px]' style={props.style}>
 			<div className='flex flex-row justify-start items-center gap-x-1 w-full'>
-				<div className='bg-white rounded w-[24px] h-[24px] basic-hover ml-1' onClick={props.onToggle}>
+				<div
+					className={props.disabled ? 'bg-gray-500 rounded w-[24px] h-[24px] ml-1' : 'bg-white rounded w-[24px] h-[24px] basic-hover ml-1'}
+					onClick={props.disabled ? () => {} : props.onToggle}
+				>
 					{props.checked && <Check className='text-black' />}
 				</div>
 				<div>{`${props.name}${props.checked ? ': ' + props.count : ''}`}</div>
 			</div>
-			{props.checked && <input type='range' min='1' max='30' value={props.count} className='w-full mt-1' onChange={props.onChange} />}
+			{props.checked && <input disabled={props.disabled} type='range' min='1' max='30' value={props.count} className='w-full mt-2 ' onChange={props.onChange} />}
 			{/* <input type='slider' className='w-full bg-transparent' /> */}
 		</div>
 	);
@@ -67,10 +72,14 @@ function shuffle(array: any[]) {
 export default function Home() {
 	const router = useRouter();
 
+	const searchParams: any = useSearchParams();
+
 	const [state, setState] = useState<any>({
 		categories: [],
 		name: '',
 		error: '',
+		import: null,
+		importName: '',
 	});
 
 	const toggleStatus = (index: number) => {
@@ -141,8 +150,9 @@ export default function Home() {
 		questions = questions.flat();
 		let exams = JSON.parse(localStorage.getItem('exams') || '[]');
 		let active = exams.length == 0 ? 0 : exams.sort((a: any, b: any) => b.id - a.id)[0].id + 1;
+
 		exams.push({
-			data: questions,
+			data: state.import != null ? state.import.data : questions,
 			id: active,
 			duration: 0,
 			date: Date.now(),
@@ -159,6 +169,57 @@ export default function Home() {
 	};
 
 	useEffect(() => {
+		let given = searchParams.get('id');
+		if (given) {
+			let categories = [...defaultCategories];
+			let exams = JSON.parse(localStorage.getItem('exams') || '[]');
+
+			let exam = exams.filter((e: any) => e.id == parseInt(given));
+
+			if (exam.length == 0) return;
+
+			exam = exam[0];
+
+			let exam_skills = exam.data.map((e: any) => e.skill);
+			exam_skills = exam_skills.filter((e: any, i: number) => exam_skills.indexOf(e) == i).map((e: any) => skills[e]);
+
+			// Disable all categories that dnot have in the quesitons
+			categories = categories.map((e: any) => {
+				if (exam_skills.includes(e.name)) return e;
+
+				return {
+					...e,
+					status: false,
+				};
+			});
+
+			categories = categories.map((e: any) => {
+				if (!e.status) return e;
+
+				let skill = Object.entries(skills).filter((x) => x[1] == e.name)[0][0];
+				return {
+					...e,
+					count: exam.data.filter((e: any) => e.skill == skill).length,
+				};
+			});
+
+			let active = exams.length == 0 ? 0 : exams.sort((a: any, b: any) => b.id - a.id)[0].id + 1;
+			let name = `اختبار ${active}`;
+			exam.data = exam.data.map((e: any) => {
+				return {
+					...e,
+					chosen: '',
+				};
+			});
+			setState({
+				...state,
+				categories: categories,
+				name: name,
+				import: exam,
+			});
+			return;
+		}
+
 		let categories = getCategories();
 		let exams = JSON.parse(localStorage.getItem('exams') || '[]');
 
@@ -173,26 +234,35 @@ export default function Home() {
 		});
 	}, []);
 
+	let mobile = useMediaQuery('only screen and (max-width: 1212px)');
+
 	return (
-		<div className='w-full h-full fixed top-0 left-0 flex justify-center items-center'>
+		<div className='w-full h-full fixed top-0 left-0 flex justify-center items-center p-8'>
 			<div className='w-[600px] flex flex-col justify-center items-center'>
+				{state.import != null && (
+					<div className='text-[25px] text-white w-full flex justify-center items-center mb-4 bg-green-800 rounded-xl py-2'>
+						إعادة الإختبار:&nbsp;<span className='text-red-400'>{state.import.name}</span>&nbsp;
+					</div>
+				)}
 				<div className='text-[20px] text-white w-full flex justify-start items-center'>اسم الاختبار</div>
 				<input type='text' className='bg-transparent border-gray-500 border-2 mt-2 rounded p-2 w-full' placeholder='الاسم' value={state.name} onChange={onNameChange} />
 				<div className='w-full bg-white h-[1px] my-4'>&nbsp;</div>
 
-				{state.categories.map((category: any, index: number) => {
-					return (
-						<Category
-							key={index.toString()}
-							name={category.name}
-							checked={state.categories[index].status}
-							count={state.categories[index].count}
-							onToggle={() => toggleStatus(index)}
-							onChange={(event: any) => onChange(index, event)}
-						/>
-					);
-				})}
-
+				<div className='flex flex-col gap-y-8 w-full py-2'>
+					{state.categories.map((category: any, index: number) => {
+						return (
+							<Category
+								key={index.toString()}
+								name={category.name}
+								checked={state.categories[index].status}
+								count={state.categories[index].count}
+								onToggle={() => toggleStatus(index)}
+								onChange={(event: any) => onChange(index, event)}
+								disabled={state.import != null}
+							/>
+						);
+					})}
+				</div>
 				<div className='w-full bg-white h-[1px] my-4'>&nbsp;</div>
 				<div className='w-full text-black justify-between flex items-center gap-x-2 text-[16px]'>
 					<Button onClick={onSubmit}>إنشاء</Button>
