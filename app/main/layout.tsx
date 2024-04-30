@@ -82,7 +82,7 @@ function Mobile() {
 					<ChevronLeft />
 				</div> */}
 			</div>
-			<div className='w-full gap-y-2 flex flex-col justify-between items-center h-[610px]'>
+			<div className='w-full gap-y-2 flex flex-col justify-between items-center h-[550px]'>
 				<div className='py-2 flex flex-col gap-y-4'>
 					<div className='circle-button' onClick={() => router.push('/main')}>
 						<Home />
